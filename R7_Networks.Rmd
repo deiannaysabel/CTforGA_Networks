@@ -1,4 +1,5 @@
-<center><img src="http://i.imgur.com/sSaOozN.png" width="500"></center>
+<center><img src="https://cdn.fs.guides.co/PDn0ImTfSb6QwgIvdoQ8" width="500"></center>
+
 
 ## Course: Computational Thinking for Governance Analytics
 
@@ -36,46 +37,45 @@ The data was not available from the author's website, so the matrix you see abov
 
 <img src="https://github.com/EvansDataScience/govanalyticsweb/raw/master/pics/excelFigue.png" width="1000">
 
-The format of that data is an adjancey matrix, and the link to that file is here (I saved it as a csv file):
+The format of that data is an adjacency matrix, and the link to that file is here:
 
 ```{r, eval=FALSE}
-linkAdjMx='https://github.com/EvansDataScience/data/raw/master/dataFigueroa.csv'
-```
+# opening excel
+library(rio)
 
-We can use the link to read this CSV file:
+linkAdjMx='https://github.com/EvansDataScience/CTforGA_Networks/raw/main/dataFigueroa.xlsx'
 
-```{r, eval=FALSE}
-# column 1 will be used as row name: row.names=1
-# leave names as they are: 'check.names=FALSE'
-
-EdgesAsDF = read.csv(linkAdjMx, header=TRUE,row.names=1,check.names=FALSE) 
+adjacency=import(linkAdjMx,which = 1)
 ```
 
 This matrix is supposed to be squared. Is it?
 
 ```{r, eval=FALSE}
-dim(EdgesAsDF)
+dim(adjacency)
 ```
 
-The last column is information about the businessmen: if they represented international corporations:
-
+Take a look:
 ```{r, eval=FALSE}
-EdgesAsDF['Multinacional']
+head(adjacency)
 ```
 
-The adjacency matrix needs not include the  column ("Multinacional") in the data frame:
+The first column should be  the row names:
 
 ```{r, eval=FALSE}
-adjacency=EdgesAsDF[,-c(38)]
+row.names(adjacency)=adjacency$Names
+adjacency$Names=NULL
 
-#result:
+# then
 adjacency
 ```
+
+
 
 This _data frame_ has now to be converted into a **matrix**.
 
 ```{r, eval=FALSE}
 adjacency=as.matrix(adjacency) # This coerces the object into a matrix, just in case
+adjacency
 
 ```
 
@@ -85,6 +85,8 @@ From this kind of structure (the adjacency _matrix_), we can easily create a net
 ```{r, eval=FALSE}
 library(igraph)
 EliteNet=graph.adjacency(adjacency,mode="undirected",weighted=NULL)
+# see it here
+EliteNet
 ```
 
 A network is composed of _nodes_ (aka vertices) and _edges_ that connect them. You can know how many you have of each like this:
@@ -96,7 +98,7 @@ vcount(EliteNet) #count of nodes
 ecount(EliteNet) #count of edges
 ```
 
-There is some information above you need not pay attention.
+
 
 You can take a look at how this network looks like:
 
@@ -106,24 +108,22 @@ plot.igraph(EliteNet,
             edge.color='lightblue')
 ```
 
-Remember we had an attribute we dropped, but now it is time to use it.
+So far we only have nodes and their links. Let's bring som information about the nodes:
 
 ```{r, eval=FALSE}
 # The adjacency matrix did not include the nodes attributes.
-head(EdgesAsDF$Multinacional)
+attributes=import(linkAdjMx,which = 2)
+head(attributes)
 
-```
-
-So the network does not have that information:
-
-```{r, eval=FALSE}
-vertex_attr_names(EliteNet) 
 ```
 
 
 Igraph can add an attribute easily. Let's proceed with the change:
 ```{r, eval=FALSE}
-EliteNet=set_vertex_attr(EliteNet,"multi",value=EdgesAsDF$Multinacional)
+EliteNet=set_vertex_attr(EliteNet,"multi",value=attributes$multinational)
+
+#then
+EliteNet
 ```
 
 It should have worked:
@@ -149,10 +149,12 @@ What nodes are in each component?:
 groups(components(EliteNet))
 ```
 
-
+Let me add the component as an attribute:
 ```{r, eval=FALSE}
 component=components(EliteNet)$membership
 EliteNet=set_vertex_attr(EliteNet,"component",value=component)
+#then
+EliteNet
 ```
 
 
@@ -162,10 +164,12 @@ A visual representation follows:
 Labels=component
 numberOfClasses = length(unique(Labels)) 
 
+#preparing color
 library(RColorBrewer)
 colorForScale='Set2'
 colors = brewer.pal(numberOfClasses, colorForScale)
 
+# plotting
 plot.igraph(EliteNet,
              vertex.color = colors[Labels],
              edge.color='lightblue')
@@ -176,11 +180,12 @@ As we do not have ONE connected network but several components, we can pay atten
 1. Get the sizes of each component:
 
 ```{r, eval=FALSE}
-Sizes=components(EliteNet)$csize
+(Sizes=components(EliteNet)$csize)
 ```
 
 2. Get the subnet with the largest component:
 ```{r, eval=FALSE}
+# this is a subnet
 EliteNet_giant=induced.subgraph(EliteNet, which(Labels == which.max(Sizes)))
 ```
 
