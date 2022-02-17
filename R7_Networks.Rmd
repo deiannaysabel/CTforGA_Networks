@@ -236,19 +236,26 @@ diameter(EliteNet_giant)
 ```
 
 
-* Local clustering coefficient of a node is away to measure the level of connectivity its neighbors. If all its neighbors are connected among one another, if they are totally connected, you get 1; if none of them is connected you get zero. Then, the average clustering coefficient tells you the average of those values.
+* Local clustering coefficient of a node is away to measure the level of connectivity its neighbors. If all its neighbors are connected among one another you get 1; if none of them is connected you get zero. Then, the average clustering coefficient tells you the average of those values.
 
 ```{r, eval=FALSE}
 # we need some help beyond Igraph:
 transitivity(EliteNet_giant,type = 'average')
 ```
-* Shorter path (average): it gets the average of every shortest path among the nodes in the network. A shorter path is the shortest _walk_ fromone node to another.
+
+* Shortest path (average): it gets the average of every shortest path among the nodes in the network. A shorter path is the shortest _walk_ from one node to another.
+
 
 ```{r, eval=FALSE}
 average.path.length(EliteNet_giant)
 ```
 
 **Random networks** have *small shortest path* and *small clustering coefficient*...Is this the case?. The high clustering coefficient would suggest a **small world**, as most nodes are not neighbors of one another, but most nodes can be reached from every other in few steps.
+
+
+<center><img src="https://github.com/EvansDataScience/CTforGA_Networks/raw/main/networkTypes.jpeg" width="500"></center>
+
+
 
 * Transitivity: How probable is that two business men with a common business friend, are also friends.
 
@@ -270,8 +277,8 @@ attrNet=V(EliteNet_giant)$multi
 assortativity(EliteNet_giant,attrNet)
 ```
 
+Coloring by attribute:
 ```{r, eval=FALSE}
-#install 
 LabelsColor=attrNet+1
 colors=c('lightblue','magenta')
 plot.igraph(EliteNet_giant,
