@@ -1,4 +1,4 @@
-<center><img src="https://cdn.fs.guides.co/PDn0ImTfSb6QwgIvdoQ8" width="500"></center>
+<center><img src="http://i.imgur.com/sSaOozN.png" width="500"></center>
 
 
 ## Course: Computational Thinking for Governance Analytics
@@ -220,11 +220,16 @@ ____
 
 * Density: from 0 to 1, where 1 makes it a 'complete' network: there is a link between every pair of nodes.
 
+<center><img src="https://cdn.fs.guides.co/PDn0ImTfSb6QwgIvdoQ8" width="500"></center>
+
 ```{r, eval=FALSE}
 graph.density(EliteNet_giant)
 ```
 
 * Diameter: worst case escenario for number of steps for someone to contact another one (only for connected component).
+
+<center><img src="https://github.com/EvansDataScience/CTforGA_Networks/raw/main/diameter.jpeg" width="500"></center>
+
 
 ```{r, eval=FALSE}
 diameter(EliteNet_giant)
