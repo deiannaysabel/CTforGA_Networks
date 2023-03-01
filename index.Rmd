@@ -57,6 +57,8 @@ This data is organized as an adjacency matrix. It should be squared:
 dim(adjacency)
 ```
 
+We get 37 rows and 38 columns - doesn't work because we need a square matrix
+
 Let's take a look at the column names:
 ```{r, eval=TRUE, message=FALSE}
 names(adjacency)
@@ -69,8 +71,7 @@ row.names(adjacency)=adjacency$Names
 adjacency$Names=NULL
 dim(adjacency)
 ```
-
-
+We end up with a 37 x 27 matrix - what we want
 
 This data is currently  a _data frame_, and  has now to be converted into a **matrix**.
 
@@ -95,11 +96,11 @@ vcount(EliteNet) #count of vertices
 ```{r, eval=TRUE, message=FALSE}
 ecount(EliteNet) #count of edges
 ```
-
-
+A count of 37 vertices and 135 edges mean there is an average of fewer than four connections per person.
 
 You can take a look at how this network looks like:
 
+Note that this is just the layout of a network. The distance between nodes is not representative of anything, doesn't necessarily have meaning.
 ```{r, eval=TRUE, message=FALSE}
 plot.igraph(EliteNet,
             vertex.color = 'yellow',
@@ -108,17 +109,15 @@ plot.igraph(EliteNet,
 
 Before going further, it is good to know if our network is connected (every node can reach any other node):
 
-
 ```{r, eval=TRUE, message=FALSE}
 is_connected(EliteNet)
 ```
-
-As we do not have ONE connected network (at least two components), we can pay attention to the Giant Component (component with max nodes):
+As we do not have ONE connected network (at least two components (isolated points)), we can pay attention to the Giant Component (component with max nodes): (if the network is connected, we omit this part)
 
 ```{r}
-#library(CINNA)
+library(CINNA)
 
-EliteNet_giant=CINNA::giant_component_extract(EliteNet,directed = F)[[1]]
+EliteNet_giant=CINNA::giant_component_extract(EliteNet,directed = F)[[1]] #1 means one giant component - keeping just the first one that appears
 ```
 
 
@@ -162,7 +161,9 @@ ____
 graph.density(EliteNet_giant)
 ```
 
-* Diameter: When two vertices are connected, one can reach the other using multiple egdes (routes). The geodesic is the shorthest path between two connected vertices. Then, the diameter, is the maximum geodesic in a network (the worst case scenario for number of edges for someone to contact another one only computable for connected networks).
+* Diameter: When two vertices are connected, one can reach the other using multiple egdes (routes). The geodesic is the shortest path between two connected vertices. Then, the diameter, is the maximum geodesic in a network (the worst case scenario for number of edges for someone to contact another one only computable for connected networks).
+
+i.e. the diameter tells you the closest distance (the "cost") to the farthest person connected to a node
 
 <center><img src="https://github.com/EvansDataScience/CTforGA_Networks/raw/main/diameter.jpeg" width="500"></center>
 
@@ -174,22 +175,22 @@ We can find out who are pair (or pairs) of nodes represent the diameter.
 ```{r}
 farthest_vertices(EliteNet_giant)
 ```
+[1] Michell and Wong Lu represent the start and end of the path
 
 * Shortest path (average): it gets the average of every shortest path among the nodes in the network. A shorter path is the shortest _walk_ from one node to another.
-
 
 ```{r, eval=TRUE, message=FALSE}
 average.path.length(EliteNet_giant)
 ```
 
-* Transitivity: How probable is that two vertices with a common vertex, are also connected.
+* Transitivity: How probable is that two vertices with a common vertex, are also connected. i.e. If A is friends with B and A is friends with C, what is the probability that B is friends with C?
 
 
 ```{r, eval=TRUE, message=FALSE}
 transitivity(EliteNet_giant)
 ```
 
-* Assortativity (degree): it is a measure to see if nodes are connecting to other nodes similar in degree.  Closer to 1 means higher assortativity, closer to -1 diassortativity; while 0 is no assortitivity.
+* Assortativity (degree): it is a measure to see if nodes are connecting to other nodes similar in degree.  Closer to 1 means higher assortativity (those with a high amount of  connections are also connected to people with a high number of connections), closer to -1 diassortativity (those who are highly connected are connected with those who are lowly connected); while 0 is no assortitivity.
 
 ```{r, eval=TRUE, message=FALSE}
 assortativity_degree(EliteNet_giant)
@@ -204,8 +205,7 @@ Let's focus on the relevance, or _centrality_ of the vertices we have.
 
 a. The degree  of a vertex will tell you about the amount of connections of each node. A node with degree centrality of ONE (1) means that is connected to every other node. 
 b. The closeness of a vertex will tell you how close is a vertex to every other vertex. A vertex with high closeness can share information faster than the rest.
-c. The betweeness of a vertex will tell you how critical is a vertex to connect vertex that are not connected directly.
-
+c. The betweeness of a vertex will tell you how critical is a vertex to connect vertex that are not connected directly.ne
 d. The eigenvector of a vertex will tell you how well connected is a vertex; that is,   vertices with the highest values are considered the most influential as they are connected to vertices that are also well connected.
 
 Let me get all these centrality indexes:
